@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexusGuard — Sales Tax Nexus Tracker</title>
+  <meta name="description" content="Track your e-commerce sales tax nexus thresholds across US states. Know exactly when you need to register for sales tax collection." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwindcss.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50:  '#eef5ff',
+              100: '#d9e8ff',
+              200: '#bcd8ff',
+              300: '#8ec0ff',
+              400: '#599fff',
+              500: '#3378ff',
+              600: '#1b57f5',
+              700: '#1443e1',
+              800: '#1736b6',
+              900: '#19328f',
+              950: '#142057',
+            },
+            surface: {
+              800: '#1a1d2e',
+              850: '#151725',
+              900: '#0f111a',
+              950: '#0a0c12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0c12 0%, #141728 50%, #0f111a 100%);
+      min-height: 100vh;
+    }
+
+    /* Glassmorphism card */
+    .glass-card {
+      background: rgba(26, 29, 46, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Progress bar shimmer animation */
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .bar-shimmer {
+      background-size: 200% 100%;
+      animation: shimmer 2.5s ease-in-out infinite;
+    }
+
+    /* Glow pulse for threshold-exceeded cards */
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
+      50%      { box-shadow: 0 0 30px rgba(239, 68, 68, 0.3); }
+    }
+    .glow-red {
+      animation: glow-pulse 2s ease-in-out infinite;
+    }
+
+    /* Smooth entrance */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up {
+      animation: fade-up 0.6s ease-out both;
+    }
+
+    /* Staggered delays */
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+
+    /* Registration Guide modal overlay */
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Spinner */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Pulse dot for connected status */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-dot {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body class="text-gray-200 antialiased">
+
+  <!-- ========== HEADER ========== -->
+  <header class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-600/20 via-transparent to-purple-600/10 pointer-events-none"></div>
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/25">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+            Nexus<span class="text-brand-400">Guard</span>
+          </h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="tier-badge" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/5 text-gray-500 border border-white/10">
+            Free
+          </span>
+          <span class="hidden sm:inline-block text-xs font-medium text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+            Sales Tax Nexus Tracker
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-8 sm:mt-10 max-w-2xl">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+          Track Your <span class="bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">Nexus Thresholds</span>
+        </h2>
+        <p class="mt-3 text-base sm:text-lg text-gray-400 leading-relaxed">
+          Monitor your sales across states and get alerted before you hit the $100,000 economic nexus threshold. Stay compliant, avoid penalties.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== DATA SOURCES ========== -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 mb-8 animate-fade-up delay-100">
+    <h3 class="text-lg font-semibold text-white mb-4">Data Sources</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Shopify -->
+      <div class="glass-card rounded-2xl p-5 transition-all duration-300 hover:border-white/10">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-[#96bf48]/15 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#96bf48">
+              <path d="M15.34 3.04c-.04 0-.08.02-.12.04-.04.02-1.1.34-1.1.34-.08-.46-.36-.88-.76-1.18C12.94 1.9 12.44 1.72 11.86 1.72c-.08 0-.16 0-.24.02-.04-.04-.08-.08-.1-.12C11.14 1.2 10.64 1 10.08 1c-1.12.04-2.24.86-3.14 2.32-.64 1.02-1.12 2.3-1.26 3.3l-2.18.68c-.64.2-.66.22-.74.82C2.72 8.56 1 21.56 1 21.56L15.82 24l.02-20.94c-.16-.02-.34-.04-.5-.02zM12.1 4.66l-1.88.58c.18-.7.52-1.4.94-1.86.16-.18.38-.38.64-.5.26.52.32 1.26.3 1.78zM10.14 1.96c.22 0 .4.04.56.14-.24.12-.46.32-.66.54-.56.6-.98 1.52-1.14 2.42l-1.56.48c.32-1.44 1.4-3.52 2.8-3.58zM11.02 11.5s-.66-.36-1.48-.36c-1.2 0-1.26.76-1.26.94 0 1.04 2.7 1.44 2.7 3.86 0 1.9-1.22 3.14-2.86 3.14-1.96 0-2.96-1.22-2.96-1.22l.52-1.74s1.04.88 1.9.88c.56 0 .8-.44.8-.78 0-1.36-2.22-1.42-2.22-3.64 0-1.86 1.34-3.68 4.06-3.68.62 0 1.26.18 1.26.18l-.46 2.42zM12.7 4.48c-.02-.52-.06-1.26-.28-1.78.7.14 1.04.9 1.2 1.36l-.92.42z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="text-white font-semibold text-sm">Shopify</h4>
+            <p id="shopify-status-text" class="text-xs text-gray-500 mt-0.5">Not connected</p>
+          </div>
+          <span id="shopify-status-badge" class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/5 text-gray-500">
+            Offline
+          </span>
+        </div>
+        <div id="shopify-action-area">
+          <!-- Dynamically populated by setShopifyUIState() -->
+        </div>
+        <p id="shopify-last-sync" class="text-[10px] text-gray-600 mt-2 text-center hidden"></p>
+      </div>
+
+      <!-- Amazon (Coming Soon) -->
+      <div class="glass-card rounded-2xl p-5 opacity-50 cursor-not-allowed">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="text-white font-semibold text-sm">Amazon</h4>
+            <p class="text-xs text-gray-500 mt-0.5">Marketplace</p>
+          </div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-400">
+            Coming Soon
+          </span>
+        </div>
+        <button disabled class="w-full flex items-center justify-center gap-2 bg-white/5 text-gray-500 text-sm font-semibold px-4 py-2.5 rounded-xl cursor-not-allowed border border-white/5">
+          Connect Amazon
+        </button>
+      </div>
+
+      <!-- Etsy (Coming Soon) -->
+      <div class="glass-card rounded-2xl p-5 opacity-50 cursor-not-allowed">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-orange-600/15 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="text-white font-semibold text-sm">Etsy</h4>
+            <p class="text-xs text-gray-500 mt-0.5">Marketplace</p>
+          </div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-400">
+            Coming Soon
+          </span>
+        </div>
+        <button disabled class="w-full flex items-center justify-center gap-2 bg-white/5 text-gray-500 text-sm font-semibold px-4 py-2.5 rounded-xl cursor-not-allowed border border-white/5">
+          Connect Etsy
+        </button>
+      </div>
+
+      <!-- Refer & Earn -->
+      <div class="glass-card rounded-2xl p-5 transition-all duration-300 hover:border-white/10 border border-emerald-500/20">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="text-white font-semibold text-sm">Refer & Earn</h4>
+            <p class="text-xs text-gray-500 mt-0.5">Unlock free states</p>
+          </div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400">
+            Free
+          </span>
+        </div>
+        <div class="bg-white/5 rounded-lg px-3 py-2 mb-3 flex items-center gap-2">
+          <span id="referral-link" class="text-xs text-brand-400 truncate flex-1 select-all">Loading...</span>
+          <button id="btn-copy-referral" class="text-[10px] font-semibold text-white bg-brand-600 hover:bg-brand-500 px-2.5 py-1 rounded-md transition-colors flex-shrink-0 cursor-pointer">
+            Copy
+          </button>
+        </div>
+        <p class="text-[10px] text-gray-500 text-center">Each referral unlocks +1 free state</p>
+      </div>
+    </div>
+
+    <!-- Upgrade CTA -->
+    <div id="upgrade-cta" class="mt-4 relative overflow-hidden glass-card rounded-2xl p-5 border border-purple-500/20 transition-all duration-300 hover:border-purple-500/40">
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-brand-600/5 to-indigo-600/10 pointer-events-none"></div>
+      <div class="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/25">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-white font-bold text-sm">Unlock All 50 States</h4>
+            <p class="text-xs text-gray-400 mt-0.5">Track every state + automated alerts + priority support</p>
+          </div>
+        </div>
+        <button
+          id="btn-go-pro"
+          onclick="handleStripeUpgrade()"
+          class="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-500 hover:from-purple-500 hover:to-indigo-400 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 whitespace-nowrap"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Go Pro — $15/mo
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SUMMARY STRIP ========== -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-2">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-up delay-100">
+      <!-- Tracked States -->
+      <div id="summary-tracked" class="glass-card rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 hover:border-white/10">
+        <div class="w-11 h-11 rounded-xl bg-brand-500/15 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400">Tracked States</p>
+          <p class="text-2xl font-bold text-white" id="stat-tracked">—</p>
+        </div>
+      </div>
+      <!-- Approaching -->
+      <div id="summary-approaching" class="glass-card rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 hover:border-white/10">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400">Approaching Threshold</p>
+          <p class="text-2xl font-bold text-white" id="stat-approaching">—</p>
+        </div>
+      </div>
+      <!-- Exceeded -->
+      <div id="summary-exceeded" class="glass-card rounded-2xl p-5 flex items-center gap-4 transition-all duration-300 hover:border-white/10">
+        <div class="w-11 h-11 rounded-xl bg-red-500/15 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm text-gray-400">Threshold Exceeded</p>
+          <p class="text-2xl font-bold text-white" id="stat-exceeded">—</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STATE CARDS ========== -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-center justify-between mb-6 animate-fade-up delay-200">
+      <h3 class="text-lg font-semibold text-white">State Progress</h3>
+      <button id="btn-reset" class="text-xs font-medium text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition-all duration-200" title="Reset data to defaults">
+        ↻ Reset Data
+      </button>
+    </div>
+
+    <!-- State Search -->
+    <div class="relative mb-6 animate-fade-up delay-200">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <input
+        type="text"
+        id="state-search"
+        placeholder="Search states..."
+        class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all"
+      />
+    </div>
+
+    <div id="state-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Cards injected by app.js -->
+    </div>
+  </main>
+
+  <!-- ========== REGISTRATION GUIDE MODAL ========== -->
+  <div id="modal-guide" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="glass-card rounded-2xl max-w-lg w-full mx-4 p-8 border border-white/10 shadow-2xl animate-fade-up">
+      <div class="flex items-center justify-between mb-6">
+        <h4 class="text-xl font-bold text-white">Registration Guide</h4>
+        <button id="modal-close" class="text-gray-400 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p id="modal-state-name" class="text-brand-400 font-semibold mb-3"></p>
+      <div id="modal-body" class="space-y-3 text-gray-300 text-sm leading-relaxed">
+        <!-- Content set by app.js -->
+      </div>
+      <a id="modal-link" href="#" target="_blank" rel="noopener" class="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg shadow-brand-600/25">
+        Visit State Portal
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ========== SHOPIFY CONNECT MODAL ========== -->
+  <div id="modal-shopify" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="glass-card rounded-2xl max-w-md w-full mx-4 p-8 border border-white/10 shadow-2xl animate-fade-up">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-[#96bf48]/15 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#96bf48">
+              <path d="M15.34 3.04c-.04 0-.08.02-.12.04-.04.02-1.1.34-1.1.34-.08-.46-.36-.88-.76-1.18C12.94 1.9 12.44 1.72 11.86 1.72c-.08 0-.16 0-.24.02-.04-.04-.08-.08-.1-.12C11.14 1.2 10.64 1 10.08 1c-1.12.04-2.24.86-3.14 2.32-.64 1.02-1.12 2.3-1.26 3.3l-2.18.68c-.64.2-.66.22-.74.82C2.72 8.56 1 21.56 1 21.56L15.82 24l.02-20.94c-.16-.02-.34-.04-.5-.02zM12.1 4.66l-1.88.58c.18-.7.52-1.4.94-1.86.16-.18.38-.38.64-.5.26.52.32 1.26.3 1.78zM10.14 1.96c.22 0 .4.04.56.14-.24.12-.46.32-.66.54-.56.6-.98 1.52-1.14 2.42l-1.56.48c.32-1.44 1.4-3.52 2.8-3.58zM11.02 11.5s-.66-.36-1.48-.36c-1.2 0-1.26.76-1.26.94 0 1.04 2.7 1.44 2.7 3.86 0 1.9-1.22 3.14-2.86 3.14-1.96 0-2.96-1.22-2.96-1.22l.52-1.74s1.04.88 1.9.88c.56 0 .8-.44.8-.78 0-1.36-2.22-1.42-2.22-3.64 0-1.86 1.34-3.68 4.06-3.68.62 0 1.26.18 1.26.18l-.46 2.42zM12.7 4.48c-.02-.52-.06-1.26-.28-1.78.7.14 1.04.9 1.2 1.36l-.92.42z"/>
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-white">Connect Your Shopify Store</h4>
+        </div>
+        <button id="modal-shopify-close" class="text-gray-400 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-sm text-gray-400 mb-5">Enter your Shopify store URL to authorize NexusGuard to read your order data.</p>
+
+      <!-- Store URL input -->
+      <div class="mb-2">
+        <label for="input-shop-url" class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">Store URL</label>
+        <div class="flex items-center gap-0">
+          <input
+            type="text"
+            id="input-shop-url"
+            placeholder="your-store"
+            class="flex-1 bg-white/5 border border-white/10 rounded-l-lg px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all"
+          />
+          <span class="bg-white/5 border border-l-0 border-white/10 rounded-r-lg px-3 py-3 text-sm text-gray-500 select-none">.myshopify.com</span>
+        </div>
+      </div>
+      <p id="shop-url-error" class="text-xs text-red-400 mb-4 hidden">Please enter a valid store name (letters, numbers, and hyphens only).</p>
+
+      <!-- Action buttons -->
+      <button
+        id="btn-oauth-connect"
+        onclick="startOAuthRedirect()"
+        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white text-sm font-semibold px-4 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/25 mb-3"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Authorize with Shopify
+      </button>
+
+      <button
+        id="btn-demo-mode"
+        onclick="runDemoMode()"
+        class="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-all duration-200 border border-white/10"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Use Demo Mode Instead
+      </button>
+
+      <p class="text-[10px] text-gray-600 mt-4 text-center">
+        NexusGuard only requests <strong class="text-gray-400">read_orders</strong> permission. We never modify your store.
+      </p>
+    </div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-4">
+    <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+      <p>© 2026 NexusGuard. For informational purposes only — not tax advice.</p>
+      <p>Powered by <a href="https://puter.com" target="_blank" rel="noopener" class="text-brand-400 hover:text-brand-300 transition-colors">Puter.js</a></p>
+    </div>
+  </footer>
+
+  <!-- App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

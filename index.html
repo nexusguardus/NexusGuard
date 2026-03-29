@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexusGuard — Automated Sales Tax Nexus Tracking for Shopify Sellers</title>
+  <meta name="description" content="Stop guessing your sales tax nexus. NexusGuard automatically tracks your Shopify sales across all 50 states and alerts you before you hit the $100,000 threshold." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwindcss.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50:  '#eef5ff',
+              100: '#d9e8ff',
+              200: '#bcd8ff',
+              300: '#8ec0ff',
+              400: '#599fff',
+              500: '#3378ff',
+              600: '#1b57f5',
+              700: '#1443e1',
+              800: '#1736b6',
+              900: '#19328f',
+              950: '#142057',
+            },
+            surface: {
+              800: '#1a1d2e',
+              850: '#151725',
+              900: '#0f111a',
+              950: '#0a0c12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0c12 0%, #141728 50%, #0f111a 100%);
+      min-height: 100vh;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .feature-icon {
+      background: linear-gradient(135deg, rgba(51, 120, 255, 0.15), rgba(51, 120, 255, 0.05));
+      border: 1px solid rgba(51, 120, 255, 0.2);
+    }
+
+    .pricing-popular {
+      border: 1px solid rgba(147, 51, 234, 0.4);
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.08), rgba(99, 102, 241, 0.04));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .float-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-up {
+      animation: fadeUp 0.7s ease-out forwards;
+      opacity: 0;
+    }
+
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+    .delay-600 { animation-delay: 0.6s; }
+
+    .gradient-border {
+      position: relative;
+    }
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(51, 120, 255, 0.5), rgba(147, 51, 234, 0.5));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+  </style>
+</head>
+
+<body class="text-gray-300 antialiased overflow-x-hidden">
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="fixed top-0 inset-x-0 z-50 bg-surface-950/80 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <a href="/" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/25">
+          <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <span class="text-lg font-extrabold text-white tracking-tight">Nexus<span class="text-brand-400">Guard</span></span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="#pricing" class="hidden sm:inline-block text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">Pricing</a>
+        <a
+          href="#"
+          onclick="window.scrollTo({top: 0, behavior: 'smooth'}); document.getElementById('auth-email').focus(); return false;"
+          class="flex items-center gap-2 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-200 shadow-lg shadow-brand-600/25 cursor-pointer"
+        >
+          Log In / Get Started
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
+    <!-- Glow effects -->
+    <div class="hero-glow bg-brand-500 top-0 left-1/4 -translate-x-1/2"></div>
+    <div class="hero-glow bg-purple-600 top-20 right-0"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- Badge -->
+      <div class="animate-fade-up">
+        <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-400 bg-brand-500/10 px-4 py-1.5 rounded-full border border-brand-500/20">
+          <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+          Built for Shopify Sellers
+        </span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="mt-8 text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight animate-fade-up delay-100">
+        Stop Guessing Your<br />
+        <span class="bg-gradient-to-r from-brand-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">Sales Tax Nexus</span>
+      </h1>
+
+      <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed animate-fade-up delay-200">
+        Automated tracking for Shopify sellers. Know exactly when you cross the <strong class="text-white">$100,000</strong> economic nexus threshold in every state — before it's too late.
+      </p>
+
+      <!-- Auth Form (Embedded) -->
+      <div class="mt-10 max-w-sm mx-auto animate-fade-up delay-300 relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-brand-600/20 to-purple-600/20 blur-xl rounded-2xl pointer-events-none"></div>
+        <div class="relative glass-card rounded-2xl p-6 text-left border border-white/10 shadow-2xl">
+          <form id="auth-form" class="space-y-4" onsubmit="return false;">
+            <div>
+              <label for="auth-email" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Email Address</label>
+              <input type="email" id="auth-email" required placeholder="you@example.com" class="w-full bg-surface-900/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all" />
+            </div>
+            <div>
+              <label for="auth-password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
+              <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-surface-900/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all" />
+            </div>
+            <div id="auth-error" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3"></div>
+            <div class="flex items-center gap-3 pt-2">
+              <button type="button" id="btn-signup" class="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm py-2.5 rounded-xl border border-white/10 transition-all duration-200">
+                Sign Up
+              </button>
+              <button type="submit" id="btn-signin" class="flex-1 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-semibold text-sm py-2.5 rounded-xl transition-all duration-200 shadow-lg shadow-brand-600/25 flex items-center justify-center gap-2">
+                Log In
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Social proof -->
+      <div class="mt-14 flex items-center justify-center gap-8 text-sm text-gray-500 animate-fade-up delay-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          No credit card required
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          3 states free forever
+        </div>
+        <div class="hidden sm:flex items-center gap-2">
+          <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Setup in 2 minutes
+        </div>
+      </div>
+
+      <!-- Dashboard preview -->
+      <div class="mt-16 mx-auto max-w-4xl animate-fade-up delay-500">
+        <div class="glass-card rounded-2xl p-3 sm:p-4 float-animation">
+          <div class="bg-surface-900 rounded-xl p-6 sm:p-8">
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-xs text-gray-500 mb-1">Texas</p>
+                <p class="text-xl font-bold text-white">$87,340</p>
+                <div class="w-full h-2 rounded-full bg-amber-500/15 mt-2"><div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style="width: 87%;"></div></div>
+              </div>
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-xs text-gray-500 mb-1">California</p>
+                <p class="text-xl font-bold text-white">$102,500</p>
+                <div class="w-full h-2 rounded-full bg-red-500/15 mt-2"><div class="h-full rounded-full bg-gradient-to-r from-red-500 to-rose-600" style="width: 100%;"></div></div>
+              </div>
+              <div class="bg-white/5 rounded-xl p-4 text-center">
+                <p class="text-xs text-gray-500 mb-1">New York</p>
+                <p class="text-xl font-bold text-white">$41,200</p>
+                <div class="w-full h-2 rounded-full bg-emerald-500/15 mt-2"><div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-green-500" style="width: 41%;"></div></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span class="text-xs text-gray-500">Live synced with Shopify</span>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-500/15 px-2.5 py-1 rounded-full">⚠ 1 state exceeded</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURES ========== -->
+  <section id="features" class="py-20 sm:py-28">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-400">How It Works</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-white">
+          Three steps. Zero headaches.
+        </h2>
+        <p class="mt-4 text-gray-400 max-w-lg mx-auto">
+          Connect your store, watch the numbers, and stay compliant. We handle the rest.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="glass-card rounded-2xl p-8 text-center transition-all duration-300 hover:border-white/10 group">
+          <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-brand-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.34 3.04c-.04 0-.08.02-.12.04-.04.02-1.1.34-1.1.34-.08-.46-.36-.88-.76-1.18C12.94 1.9 12.44 1.72 11.86 1.72c-.08 0-.16 0-.24.02-.04-.04-.08-.08-.1-.12C11.14 1.2 10.64 1 10.08 1c-1.12.04-2.24.86-3.14 2.32-.64 1.02-1.12 2.3-1.26 3.3l-2.18.68c-.64.2-.66.22-.74.82C2.72 8.56 1 21.56 1 21.56L15.82 24l.02-20.94c-.16-.02-.34-.04-.5-.02z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-3">Syncs with Shopify</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">
+            One-click OAuth connection. We pull your order data automatically and calculate state-by-state revenue in real time.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-card rounded-2xl p-8 text-center transition-all duration-300 hover:border-white/10 group">
+          <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-3">Tracks All 50 States</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">
+            Every state has different nexus thresholds. We monitor your progress against each one with color-coded progress bars.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-card rounded-2xl p-8 text-center transition-all duration-300 hover:border-white/10 group">
+          <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-3">Alerts Before $100K</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">
+            Get visual alerts as you approach thresholds + step-by-step registration guides the moment you need to file.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRICING ========== -->
+  <section id="pricing" class="py-20 sm:py-28">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <span class="text-xs font-semibold uppercase tracking-wider text-purple-400">Pricing</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-white">
+          Start free. Upgrade when you grow.
+        </h2>
+        <p class="mt-4 text-gray-400 max-w-lg mx-auto">
+          Track 3 states for free, forever. Unlock all 50 states when your business needs it.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <!-- Free Tier -->
+        <div class="glass-card rounded-2xl p-8 transition-all duration-300 hover:border-white/10">
+          <div class="flex items-center justify-between mb-6">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 bg-white/5 px-3 py-1 rounded-full">Free</span>
+          </div>
+          <div class="mb-6">
+            <span class="text-4xl font-black text-white">$0</span>
+            <span class="text-gray-500 ml-1">/month</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Track up to 3 states
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Shopify integration
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Manual data entry
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-500">
+              <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              <span class="line-through">All 50 states</span>
+            </li>
+          </ul>
+          <a
+            href="#"
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'}); document.getElementById('auth-email').focus(); return false;"
+            class="full flex items-center justify-center gap-2 text-white font-semibold text-sm px-6 py-3 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all duration-200 cursor-pointer"
+          >
+            Get Started Free
+          </a>
+        </div>
+
+        <!-- Pro Tier -->
+        <div class="pricing-popular rounded-2xl p-8 relative transition-all duration-300 hover:border-purple-500/60">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-white bg-gradient-to-r from-purple-600 to-indigo-500 px-4 py-1 rounded-full shadow-lg shadow-purple-600/30">Most Popular</span>
+          </div>
+          <div class="flex items-center justify-between mb-6">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-400 bg-purple-500/15 px-3 py-1 rounded-full">Pro</span>
+          </div>
+          <div class="mb-6">
+            <span class="text-4xl font-black text-white">$15</span>
+            <span class="text-gray-500 ml-1">/month</span>
+          </div>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-purple-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <strong class="text-white">All 50 states</strong>
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-purple-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Automated threshold alerts
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-purple-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Priority support
+            </li>
+            <li class="flex items-center gap-3 text-sm text-gray-300">
+              <svg class="w-5 h-5 text-purple-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Registration step-by-step guides
+            </li>
+          </ul>
+          <button
+            class="btn-login w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-500 hover:from-purple-500 hover:to-indigo-400 text-white font-bold text-sm px-6 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/25 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            Start Pro Trial
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FINAL CTA ========== -->
+  <section class="py-20 sm:py-28">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass-card rounded-3xl p-10 sm:p-16 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-600/10 via-purple-600/5 to-transparent pointer-events-none"></div>
+        <div class="relative">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+            Don't wait for the penalty notice.
+          </h2>
+          <p class="text-gray-400 max-w-lg mx-auto mb-8 text-lg">
+            Join sellers who track their nexus automatically. Free to start, takes 2 minutes to set up.
+          </p>
+          <a
+            href="#"
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'}); document.getElementById('auth-email').focus(); return false;"
+            class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-base px-10 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-brand-600/30 cursor-pointer"
+          >
+            Log In / Get Started
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="border-t border-white/5 py-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <span class="text-sm font-bold text-gray-500">Nexus<span class="text-gray-400">Guard</span></span>
+        </div>
+        <p class="text-xs text-gray-600 text-center">
+          © 2026 NexusGuard. For informational purposes only — not tax advice.
+        </p>
+        <div class="flex items-center gap-4">
+          <a href="/states/" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">State Guides</a>
+          <a href="dashboard.html" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Logic (for login handler) -->
+  <script src="app.js"></script>
+</body>
+</html>

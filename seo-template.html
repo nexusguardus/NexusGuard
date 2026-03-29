@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{stateName}} Sales Tax Nexus Threshold — NexusGuard</title>
+  <meta name="description" content="{{seoDescription}}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://nexusguard.com/states/{{slug}}.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{{stateName}} Sales Tax Nexus Threshold — NexusGuard" />
+  <meta property="og:description" content="{{seoDescription}}" />
+  <meta property="og:type" content="article" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwindcss.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#eef5ff', 100: '#d9e8ff', 200: '#bcd8ff', 300: '#8ec0ff',
+              400: '#599fff', 500: '#3378ff', 600: '#1b57f5', 700: '#1443e1',
+              800: '#1736b6', 900: '#19328f', 950: '#142057',
+            },
+            surface: { 800: '#1a1d2e', 850: '#151725', 900: '#0f111a', 950: '#0a0c12' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0c12 0%, #141728 50%, #0f111a 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(26, 29, 46, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up { animation: fade-up 0.6s ease-out both; }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+    .delay-600 { animation-delay: 0.6s; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(51, 120, 255, 0.15); }
+      50%      { box-shadow: 0 0 40px rgba(51, 120, 255, 0.3); }
+    }
+    .cta-glow { animation: pulse-glow 3s ease-in-out infinite; }
+  </style>
+</head>
+
+<body class="text-gray-200 antialiased">
+
+  <!-- ========== NAV ========== -->
+  <nav class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/25">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <span class="text-lg font-extrabold text-white tracking-tight">Nexus<span class="text-brand-400">Guard</span></span>
+      </a>
+      <a href="../index.html" class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors group">
+        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <header class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-600/15 via-transparent to-purple-600/10 pointer-events-none"></div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <div class="animate-fade-up">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-[10px] font-semibold uppercase tracking-widest text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full">Economic Nexus Guide</span>
+          <span class="text-[10px] font-semibold uppercase tracking-widest text-gray-500 bg-white/5 px-3 py-1 rounded-full">{{abbreviation}}</span>
+        </div>
+        <div class="flex items-center gap-4 mb-4">
+          <span class="text-5xl">{{flag}}</span>
+          <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight">
+            {{stateName}} <span class="bg-gradient-to-r from-brand-400 to-cyan-400 bg-clip-text text-transparent">Sales Tax Nexus</span>
+          </h1>
+        </div>
+        <p class="text-lg text-gray-400 max-w-2xl leading-relaxed">
+          Everything remote sellers need to know about {{stateName}}'s economic nexus threshold, registration requirements, and ongoing compliance obligations.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== THRESHOLD CARDS ========== -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-2 mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-fade-up delay-100">
+      <!-- Dollar Threshold -->
+      <div class="glass-card rounded-2xl p-6 hover:border-white/10 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-11 h-11 rounded-xl bg-brand-500/15 flex items-center justify-center">
+            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <p class="text-sm text-gray-400">Dollar Threshold</p>
+        </div>
+        <p class="text-4xl font-black text-white">{{dollarThresholdFmt}}</p>
+        <p class="text-xs text-gray-500 mt-1">in total sales over the prior 12 months</p>
+      </div>
+
+      <!-- Transaction Threshold -->
+      <div class="glass-card rounded-2xl p-6 hover:border-white/10 transition-all">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            </svg>
+          </div>
+          <p class="text-sm text-gray-400">Transaction Threshold</p>
+        </div>
+        <p class="text-4xl font-black text-white">{{transactionThresholdDisplay}}</p>
+        <p class="text-xs text-gray-500 mt-1">{{transactionThresholdNote}}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DETAILS GRID ========== -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+    <h2 class="text-xl font-bold text-white mb-5 animate-fade-up delay-200">Quick Facts</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-fade-up delay-200">
+      <div class="glass-card rounded-xl p-4">
+        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Tax Rate</p>
+        <p class="text-lg font-bold text-white">{{taxRate}}</p>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Filing</p>
+        <p class="text-lg font-bold text-white">{{filingFrequency}}</p>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Effective</p>
+        <p class="text-lg font-bold text-white">{{effectiveDate}}</p>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Portal</p>
+        <a href="{{govPortalUrl}}" target="_blank" rel="noopener" class="text-brand-400 hover:text-brand-300 text-sm font-semibold transition-colors flex items-center gap-1">
+          Visit Site
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== KEY DETAILS ========== -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+    <h2 class="text-xl font-bold text-white mb-5 animate-fade-up delay-300">What You Need to Know</h2>
+    <div class="glass-card rounded-2xl p-6 sm:p-8 animate-fade-up delay-300">
+      <ul class="space-y-4">
+        {{keyDetailsList}}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== CTA BANNER ========== -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 animate-fade-up delay-400">
+    <div class="relative overflow-hidden rounded-2xl cta-glow">
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-700 via-brand-600 to-purple-700 opacity-90"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30"></div>
+
+      <div class="relative px-8 py-12 sm:px-12 sm:py-16 text-center">
+        <div class="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-semibold text-white/80">Free Tool — No Credit Card Required</span>
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
+          Tired of Tracking This Manually?
+        </h2>
+        <p class="text-lg text-white/70 max-w-xl mx-auto mb-8 leading-relaxed">
+          NexusGuard automatically monitors your sales across {{stateName}} and every other state. Get real-time alerts when you approach the {{dollarThresholdFmt}} threshold.
+        </p>
+
+        <a
+          href="../index.html"
+          id="cta-dashboard-link"
+          class="inline-flex items-center gap-3 bg-white text-brand-700 font-bold text-base sm:text-lg px-8 py-4 rounded-xl shadow-2xl shadow-black/30 hover:bg-gray-100 hover:scale-105 transition-all duration-200"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          Use the Free NexusGuard Dashboard
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+
+        <p class="text-xs text-white/40 mt-6">Connects with Shopify, Amazon &amp; Etsy · Tracks all 50 states</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-4">
+    <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+      <p>© 2026 NexusGuard. For informational purposes only — not tax advice. Consult a CPA for your specific situation.</p>
+      <a href="../index.html" class="text-brand-400 hover:text-brand-300 transition-colors">NexusGuard Dashboard →</a>
+    </div>
+  </footer>
+
+</body>
+</html>

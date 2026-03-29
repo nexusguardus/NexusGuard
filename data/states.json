@@ -1,0 +1,97 @@
+[
+  {
+    "stateName": "California",
+    "slug": "california",
+    "abbreviation": "CA",
+    "flag": "🌴",
+    "dollarThreshold": 500000,
+    "transactionThreshold": null,
+    "filingFrequency": "Quarterly",
+    "taxRate": "7.25%",
+    "effectiveDate": "April 1, 2019",
+    "govPortalUrl": "https://www.cdtfa.ca.gov/taxes-and-fees/sales-use-tax.htm",
+    "seoDescription": "Learn California's $500,000 economic nexus threshold for remote sellers. Complete guide to CA sales tax registration, filing frequency, and compliance.",
+    "keyDetails": [
+      "California uses a $500,000 sales-only threshold — there is no separate transaction count threshold.",
+      "The threshold is based on total sales into California, including exempt and marketplace sales.",
+      "Marketplace facilitators like Amazon are required to collect on behalf of sellers for marketplace sales.",
+      "District taxes (local surtaxes) apply in addition to the 7.25% base state rate and vary by jurisdiction."
+    ]
+  },
+  {
+    "stateName": "Texas",
+    "slug": "texas",
+    "abbreviation": "TX",
+    "flag": "🤠",
+    "dollarThreshold": 500000,
+    "transactionThreshold": null,
+    "filingFrequency": "Quarterly",
+    "taxRate": "6.25%",
+    "effectiveDate": "October 1, 2019",
+    "govPortalUrl": "https://comptroller.texas.gov/taxes/sales/",
+    "seoDescription": "Understand Texas's $500,000 economic nexus threshold. Complete guide to TX sales tax permits, quarterly filing, and compliance for remote sellers.",
+    "keyDetails": [
+      "Texas uses a $500,000 revenue-only threshold with no separate transaction count requirement.",
+      "The threshold is measured over the preceding 12 calendar months of total Texas revenue.",
+      "Texas has no state income tax, making sales tax the primary revenue collection method.",
+      "Local jurisdictions can add up to 2% on top of the 6.25% state rate, for a max combined rate of 8.25%."
+    ]
+  },
+  {
+    "stateName": "New York",
+    "slug": "new-york",
+    "abbreviation": "NY",
+    "flag": "🗽",
+    "dollarThreshold": 500000,
+    "transactionThreshold": 100,
+    "filingFrequency": "Quarterly",
+    "taxRate": "4.00%",
+    "effectiveDate": "June 1, 2019",
+    "govPortalUrl": "https://www.tax.ny.gov/bus/st/stidx.htm",
+    "seoDescription": "New York's economic nexus requires $500,000 in sales AND 100 transactions. Full guide to NY sales tax registration and compliance for remote sellers.",
+    "keyDetails": [
+      "New York uses a dual threshold: you must exceed BOTH $500,000 in sales AND 100 transactions to trigger nexus.",
+      "This is one of the highest thresholds in the country, so smaller sellers may not need to register.",
+      "The state rate is 4%, but combined local rates can push the total to 8.875% in New York City.",
+      "New York requires a Certificate of Authority before you can legally collect sales tax."
+    ]
+  },
+  {
+    "stateName": "Florida",
+    "slug": "florida",
+    "abbreviation": "FL",
+    "flag": "🌞",
+    "dollarThreshold": 100000,
+    "transactionThreshold": null,
+    "filingFrequency": "Monthly or Quarterly",
+    "taxRate": "6.00%",
+    "effectiveDate": "July 1, 2021",
+    "govPortalUrl": "https://floridarevenue.com/taxes/taxesfees/Pages/sales_tax.aspx",
+    "seoDescription": "Florida's $100,000 economic nexus threshold explained. Learn about FL sales tax registration, filing schedules, and compliance requirements for remote sellers.",
+    "keyDetails": [
+      "Florida adopted economic nexus relatively late (July 2021) with a $100,000 threshold based on prior-year sales.",
+      "There is no transaction count threshold — only the dollar amount matters.",
+      "Filing frequency depends on your tax liability: monthly for larger sellers, quarterly for smaller ones.",
+      "Local discretionary sales surtaxes can add 0.5%–2.5% on top of the 6% state rate, varying by county."
+    ]
+  },
+  {
+    "stateName": "Illinois",
+    "slug": "illinois",
+    "abbreviation": "IL",
+    "flag": "🏙️",
+    "dollarThreshold": 100000,
+    "transactionThreshold": 200,
+    "filingFrequency": "Monthly or Quarterly",
+    "taxRate": "6.25%",
+    "effectiveDate": "October 1, 2018",
+    "govPortalUrl": "https://tax.illinois.gov/research/taxinformation/sales.html",
+    "seoDescription": "Illinois requires registration at $100,000 in sales OR 200 transactions. Full guide to IL economic nexus, Retailers' Occupation Tax, and compliance.",
+    "keyDetails": [
+      "Illinois uses an OR threshold: exceeding EITHER $100,000 in sales OR 200 transactions triggers nexus.",
+      "This is one of the lowest thresholds nationally for transaction-based nexus, catching many mid-size sellers.",
+      "Illinois has a complex tax structure with the Retailers' Occupation Tax (ROT) as its primary sales tax.",
+      "Home-rule municipalities can impose additional taxes, and combined rates can exceed 10% in Chicago."
+    ]
+  }
+]
