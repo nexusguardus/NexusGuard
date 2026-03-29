@@ -4,7 +4,7 @@
 
 const supabaseUrl = 'https://ivyrhwlsqhhuxwjrcmmm.supabase.co';
 const supabaseKey = 'sb_publishable_SQLDL_7WpZ6U3ieAbB7j2A_Dd7IP4JT';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let currentUser = null;
 let userProfile = {};
@@ -221,7 +221,7 @@ async function kvSet(key, value) {
   userProfile[key] = value;
   if (currentUser) {
     try {
-      await supabase.from('user_profiles').update({ [key]: value }).eq('id', currentUser.id);
+      await supabaseClient.from('user_profiles').update({ [key]: value }).eq('id', currentUser.id);
     } catch (err) {
       console.warn("Supabase update failed:", err);
     }
@@ -1100,10 +1100,10 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         let authError = null;
         if (action === 'signup') {
-          const { error } = await supabase.auth.signUp({ email, password });
+          const { error } = await supabaseClient.auth.signUp({ email, password });
           authError = error;
         } else {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
           authError = error;
         }
 
@@ -1197,7 +1197,7 @@ async function handleShopifyEmbed() {
 // App Initialization & Session Check
 // ──────────────────────────────────────────────
 (async function globalInit() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   const isDashboard = !!document.getElementById("state-cards");
 
   if (session) {
@@ -1210,11 +1210,11 @@ async function handleShopifyEmbed() {
     }
 
     // Load profile
-    const { data: profile } = await supabase.from('user_profiles').select('*').eq('id', currentUser.id).single();
+    const { data: profile } = await supabaseClient.from('user_profiles').select('*').eq('id', currentUser.id).single();
     if (profile) {
       userProfile = profile;
     } else {
-      await supabase.from('user_profiles').insert([{ id: currentUser.id }]);
+      await supabaseClient.from('user_profiles').insert([{ id: currentUser.id }]);
       userProfile = { id: currentUser.id };
     }
   } else {
